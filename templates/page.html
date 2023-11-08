@@ -8,4 +8,18 @@
         <li>{{.Message}}</li>
     {{end}}
 </ul>
+{{ if .IsFirstPage }}
+    <a>Prev</a>
+{{ else }}
+    <a href="{{ .PrevPage }}" >Prev</a>
+{{ end }}
 Page {{ .PageNumber }}
+{{ if .IsLastPage }}
+    <a>Next</a>
+{{ else }}
+    {{ if .IsRoot }}
+        <a href="page/{{ .NextPage }}" >Next</a>
+    {{ else }}
+        <a href="{{ .NextPage }}" >Next</a>
+    {{ end }}
+{{ end }}
