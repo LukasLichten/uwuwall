@@ -17,9 +17,5 @@ Page {{ .PageNumber }}
 {{ if .IsLastPage }}
     <a>Next</a>
 {{ else }}
-    {{ if .IsRoot }}
-        <a href="page/{{ .NextPage }}" >Next</a>
-    {{ else }}
-        <a href="{{ .NextPage }}" >Next</a>
-    {{ end }}
+    <a href="{{ .NextPage }}" >Next</a>
 {{ end }}

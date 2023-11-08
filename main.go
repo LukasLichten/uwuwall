@@ -21,12 +21,11 @@ type Message struct {
 }
 
 type Page struct {
-	IsRoot      bool
 	IsFirstPage bool
 	IsLastPage  bool
 	PageNumber  int
-	PrevPage    int
-	NextPage    int
+	PrevPage    string
+	NextPage    string
 	Messages    []Message
 }
 
@@ -94,7 +93,7 @@ func CatchAndError(e error, w http.ResponseWriter) bool {
 }
 
 func (state State) RootPage(w http.ResponseWriter, r *http.Request) {
-	state.RenderPage(w, r, 1, true)
+	state.RenderPage(w, r, 1)
 }
 
 func (state State) SomePage(w http.ResponseWriter, r *http.Request) {
@@ -109,10 +108,10 @@ func (state State) SomePage(w http.ResponseWriter, r *http.Request) {
 	}
 	pageNumber := int(pageNum)
 
-	state.RenderPage(w, r, pageNumber, false)
+	state.RenderPage(w, r, pageNumber)
 }
 
-func (state State) RenderPage(w http.ResponseWriter, r *http.Request, pageNumber int, isRoot bool) {
+func (state State) RenderPage(w http.ResponseWriter, r *http.Request, pageNumber int) {
 	var messageCount int
 	e := state.DB.QueryRow(`SELECT COUNT(*) FROM messages`).Scan(&messageCount)
 
@@ -160,13 +159,21 @@ func (state State) RenderPage(w http.ResponseWriter, r *http.Request, pageNumber
 		}
 	}
 
+	prevPage := strconv.FormatInt(int64(pageNumber-1), 10)
+	nextPage := strconv.FormatInt(int64(pageNumber+1), 10)
+
+	if r.RequestURI == "/" {
+		nextPage = "/page/2"
+	} else if pageNumber == 2 {
+		prevPage = "/"
+	}
+
 	page := Page{
-		IsRoot:      isRoot,
 		IsFirstPage: pageNumber == 1,
 		IsLastPage:  pageNumber*state.ElementsPerPage > messageCount,
 		PageNumber:  int(pageNumber),
-		PrevPage:    pageNumber - 1,
-		NextPage:    pageNumber + 1,
+		PrevPage:    prevPage,
+		NextPage:    nextPage,
 		Messages:    doit,
 	}
 	state.PageTemlate.Execute(w, page)
